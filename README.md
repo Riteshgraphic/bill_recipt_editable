@@ -55,12 +55,6 @@ Works entirely **offline** and requires **no backend**.
 
 ---
 
-## 📷 Demo Screenshot
-![Receipt Screenshot](screenshot.png)  
-*(Replace `screenshot.png` with your actual image)*
-
----
-
 ## 📌 Notes
 - Client-side only – no server required.
 - Works offline in any modern browser.

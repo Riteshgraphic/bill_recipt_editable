@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editable Hotel Receipt</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .receipt {
+            background: #fff;
+            padding: 20px;
+            width: 320px;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .title, .info, .item, .total, .footer {
+            text-align: center;
+        }
+
+        .line {
+            border-bottom: 1px dashed #000;
+            margin: 5px 0;
+        }
+
+        .item span, .item div {
+            display: inline-block;
+            width: 50%;
+            text-align: left;
+        }
+        .item-right {
+            display: inline-block;
+            width: 50%;
+            text-align: right;
+        }
+
+        [contenteditable="true"] {
+
+            cursor: text;
+            outline: none;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="receipt">
+    <div class="title" contenteditable="true">Roots Corporation Limited</div>
+    <div class="info" contenteditable="true">Ginger Jaipur, Civil Lines<br>Hawa Sadak, Jaipur - 302001<br>Room Service</div>
+
+    <div class="line"></div>
+
+    <div class="info" contenteditable="true">SALE #1344329567 | Trans #1344245337<br>Table 601 | Covers: 1<br>Open: 10-03-2025 08:56 PM</div>
+
+    <div class="line"></div>
+
+    <div id="items">
+        <div class="item"><span contenteditable="true">Set Meal Indian</span><div style="text-align: right;" contenteditable="true" class="amount">249</div></div>
+        <div class="item"><span contenteditable="true">Buffet Breakfast</span><div style="text-align: right;" contenteditable="true" class="amount">0</div></div>
+    </div>
+
+    <div class="line"></div>
+
+    <div class="item"><span>Subtotal</span><span style="text-align: right;" id="subtotal">0.00</span></div>
+    <div class="item"><span>GST 9%</span><span style="text-align: right;" id="gst">0.00</span></div>
+    <div class="item"><span>SGST 9%</span><span style="text-align: right;" id="sgst">0.00</span></div>
+
+    <div class="line"></div>
+
+    <div class="item total"><span>Grand Total</span><span style="text-align: right;" id="grand-total">0.00</span></div>
+
+    <div class="line"></div>
+
+    <div style="width:100%;"><span>Received</span></div>
+    <div class="item"><span>Room Charge</span><span style="text-align: right;" id="room-charge">0.00</span></div>
+
+    <div class="line"></div>
+
+    <div class="item"><span>Guest</span><span contenteditable="true">Mr. Abhishek Mishra</span></div>
+
+    <div class="line"></div>
+
+    <div class="info" contenteditable="true">Room: 601 | Res No: 8057804<br>Company: Casa Stays | Tax ID: 08AAFC6641QG136</div>
+
+    <div class="line"></div>
+
+    <div class="footer" contenteditable="true">Thank you for visiting!<br>We hope to see you again soon<br>GSTIN: 08AACCR6389J1Z8</div>
+
+    <div class="info" contenteditable="true">Shift: Dinner | Printed: 10-03-2025 08:57 PM</div>
+</div>
+<div style="width: 17rem; align-content: center; justify-content: center;">
+<button style="float: left; margin: 1rem;" onclick="addItem()">+ Add Item</button>
+<button style="float: left; margin: 1rem;" onclick="printReceipt()">Print Receipt</button>
+</div>
+<script>
+    function calculateTotals() {
+        let amounts = document.querySelectorAll('.amount');
+        let subtotal = 0;
+
+        amounts.forEach(item => {
+            subtotal += parseFloat(item.textContent) || 0;
+        });
+
+        let gst = (subtotal * 0.09).toFixed(2);
+        let sgst = (subtotal * 0.09).toFixed(2);
+        let grandTotal = (subtotal + parseFloat(gst) + parseFloat(sgst)).toFixed(2);
+
+        document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+        document.getElementById('gst').textContent = gst;
+        document.getElementById('sgst').textContent = sgst;
+        document.getElementById('grand-total').textContent = grandTotal;
+        document.getElementById('room-charge').textContent = grandTotal;
+    }
+
+    document.querySelectorAll('[contenteditable="true"], .amount').forEach(item => {
+        item.addEventListener('input', calculateTotals);
+    });
+
+    function addItem() {
+        const newItem = document.createElement('div');
+        newItem.className = 'item';
+        newItem.innerHTML = `<span contenteditable="true">New Item</span><div style="text-align: right;" contenteditable="true" class="amount">0</div>`;
+        document.getElementById('items').appendChild(newItem);
+
+        newItem.querySelectorAll('[contenteditable="true"], .amount').forEach(input => {
+            input.addEventListener('input', calculateTotals);
+        });
+
+        calculateTotals();
+    }
+
+    function printReceipt() {
+        const receiptContent = document.querySelector('.receipt').innerHTML;
+        const originalContent = document.body.innerHTML;
+
+        document.body.innerHTML = `<div class="receipt">${receiptContent}</div>`;
+        window.print();
+        document.body.innerHTML = originalContent;
+
+        // Rebind event listeners after restoring content
+        document.querySelectorAll('[contenteditable="true"], .amount').forEach(item => {
+            item.addEventListener('input', calculateTotals);
+        });
+    }
+
+    calculateTotals();
+</script>
+
+</body>
+</html>
